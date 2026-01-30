@@ -1,4 +1,5 @@
 //Proejto Loja
+//Autor: Guilherme Farias dos Santos
 #include <iostream>
 #include <vector>
 #include <string>
@@ -6,40 +7,46 @@
 
 using namespace std;
 
-class ItemComercial {
+class ItemComercial { //Classe abstrata
 protected:
-    int id, qtdVendas;
-    string nome;
-    float preco;
+    //Atributos para as classes filhas
+    int id, qtdVendas; 
+    string nome; 
+    float preco; 
 
 public:
-    ItemComercial(int id, string nome, float preco, int qtdVendas) : id(id), nome(nome), preco(preco), qtdVendas(qtdVendas) {}
+    //Construtor
+    ItemComercial(int id, string nome, float preco, int qtdVendas) 
+        : id(id), nome(nome), preco(preco), qtdVendas(qtdVendas) {} 
 
-    virtual ~ItemComercial() {}
+    virtual ~ItemComercial() {} //Desconstrutor
     
-    int getId() const { return id; }
-    int getQtdVendas() const { return qtdVendas; }
-    string getNome() const { return nome; }
-    float getPreco() const { return preco; }
+    int getId() const { return id; } //Pega o valor do ID
+    int getQtdVendas() const { return qtdVendas; } //Pega o numero de vendas
+    string getNome() const { return nome; } //Pega o nome
+    float getPreco() const { return preco; } //Pega o preço
 
-    void setQtdVendas(int q) { qtdVendas = q; }
-    void setNome(string n) { nome = n; }
-    void setPreco(float p) { preco = p; }
+    void setQtdVendas(int q) { qtdVendas = q; } //Armazena o numero de vendas
+    void setNome(string n) { nome = n; } //Armazena o nome
+    void setPreco(float p) { preco = p; } //Armazena o preço
 
-    virtual void exibirDetalhes() const = 0;
-    virtual string getTipo() const = 0;
+    virtual void exibirDetalhes() const = 0; //Função para exibir os dados
+    virtual string getTipo() const = 0; //Função para o tipo (serviço ou produto)
 };
 
-class Produto : public ItemComercial {
+class Produto : public ItemComercial { //Classe derivada: Produto
 private:
-    int estoque;
+    int estoque; //Variavel para a quantidade de estoque (exclusivo da classe produto)
 
 public:
-    Produto (int id, string nome, float preco, int qtd, int qtdVendas) : ItemComercial (id, nome, preco, qtdVendas), estoque (qtd){}
+    //Construtor
+    Produto (int id, string nome, float preco, int qtd, int qtdVendas) 
+        : ItemComercial (id, nome, preco, qtdVendas), estoque (qtd){}
 
-    int getEstoque() const { return estoque; }
-    void setEstoque(int qtd) { estoque = qtd; }
+    int getEstoque() const { return estoque; } //Pega o valor de estoque
+    void setEstoque(int qtd) { estoque = qtd; } //Armazena o valor de estoque
 
+    //Função: exibir detalhes dos produtos
     void exibirDetalhes() const override {
         cout << "[PRODUTO] ID: " << id
             << " | Nome: " << nome
@@ -48,13 +55,16 @@ public:
             << " | Vendas: " << qtdVendas << endl;
     }
 
-    string getTipo() const override { return "Produto"; }
+    string getTipo() const override { return "Produto"; } //Pega o tipo (nesse caso Produto)
 };
 
-class Servico : public ItemComercial {
+class Servico : public ItemComercial {//Classe derivada: Serviço
 public:
-    Servico (int id, string nome, float preco, int qtdVendas) : ItemComercial (id, nome, preco, qtdVendas){}
+    //Construtor
+    Servico (int id, string nome, float preco, int qtdVendas) 
+        : ItemComercial (id, nome, preco, qtdVendas){}
 
+    //Função: exibir detalhes dos Serviços
     void exibirDetalhes() const override {
         cout << "[SERVICO] ID: " << id
             << " | Nome: " << nome
@@ -62,24 +72,26 @@ public:
             << " | Vendas: " << qtdVendas << endl;
     }
 
-    string getTipo() const override { return "Servico"; }
+    string getTipo() const override { return "Servico"; } //Pega o tipo (nesse caso serviço)
 };
 
-class ControleEstoque {
+class ControleEstoque { //Classe para controle
 private:
+    //Usando Vector para armazenamento
     vector<ItemComercial*> listaItens;
-    int proxId = 1;
+    int proxId = 1; //Variavel para os IDs
 
 public: 
+    //Função que adiciona um produto
     void adicionarProduto(string nome, float preco, int qtd, int qtdVendas) {
         listaItens.push_back(new Produto(proxId++, nome, preco, qtd, qtdVendas));
         cout << "Produto cadastrado" << endl;
     }
-
+    //Função que adiciona um serviço
     void adicionarServico(string nome, float preco, int qtdVendas) {
         listaItens.push_back(new Servico(proxId++, nome, preco, qtdVendas));
     }
-
+    //Função que mostra todos os itens cadastrados
     void listarTudo() {
         if (listaItens.empty()) {
             cout << "Nenhum item cadastrado" << endl;
@@ -90,7 +102,7 @@ public:
             item->exibirDetalhes();
         }
     }
-
+    //Realiza a busca por ID
     ItemComercial* buscaPorId(int id) {
         for (auto* item : listaItens) {
             if (item->getId() == id) {
@@ -99,42 +111,43 @@ public:
         }
         return nullptr;
     }
-
+    //Função para realizar a venda
     void vendaItem(int id) {
         ItemComercial* item = buscaPorId(id);
-        if (item == nullptr) {
+        if (item == nullptr) {//Caso não encontre o ID
             cout << "Item nao encontrado" << endl;
             return;
         }
 
-        item->exibirDetalhes();
+        item->exibirDetalhes(); //exibe os detalhes
         int vendas, qtdVendas;
         qtdVendas = item->getQtdVendas();
 
-        cout << "Numero de vendas: ";
+        cout << "Numero de vendas: "; //solicita a quantidade vendida
         cin >> vendas;
-        qtdVendas += vendas;
+        qtdVendas += vendas; 
         item->setQtdVendas(qtdVendas);
 
+        //Acessa os metodos que só existem em produtos
         Produto* prod = dynamic_cast<Produto*>(item);
 
-        if (prod != nullptr) {
+        if (prod != nullptr) { //Se passar é porque é um produto, se não é um serviço
             int estoque = prod->getEstoque();
             if (estoque < vendas) {
                 cout << "Estoque insuficiente" << endl;
                 return;
             }
-            estoque -= vendas;
+            estoque -= vendas; //Retira do estoque
             prod->setEstoque(estoque);
         }
 
         cout << "Venda relizada" << endl;
 
     }
-
+    //Função para atualizar o item
     void atualizarItem(int id) {
-        ItemComercial* item = buscaPorId(id);
-        if (item == nullptr) {
+        ItemComercial* item = buscaPorId(id);//Busca pelo ID
+        if (item == nullptr) {//Caso não encontre o ID
             cout << "Item nao encontrado" << endl;
             return;
         }
@@ -144,18 +157,20 @@ public:
         float novoPreco;
 
         cout << "Novo preco: ";
-        cin >> novoPreco;
+        cin >> novoPreco; //Solicita o novo preco
 
-        item->setPreco(novoPreco);
+        item->setPreco(novoPreco);//Atualiza o preço
 
+        //Acessa os metodos que só existem em produtos
         Produto* prod = dynamic_cast<Produto*>(item);
 
-        if (prod != nullptr) {
+        if (prod != nullptr) { //Se passar é porque é um produto
             int novaQtd;
             int opcao;
 
             cout << "Nova quantidade: ";
             cin >> novaQtd;
+            //Leve flexibilização
             cout << "1. Atualizar" << endl;
             cout << "2. Adicionar" << endl;
             cout << "3. Remover" << endl;
@@ -189,10 +204,10 @@ public:
 
         cout << "Produto atualizado" << endl;
     }
-
+    //Função para remover um item
     void removerItem(int id) {
         for (auto it = listaItens.begin(); it != listaItens.end(); ++it) {
-            if ((*it)->getId() == id) {
+            if ((*it)->getId() == id) {//Caso encontre o ID
                 delete* it;
                 listaItens.erase(it);
                 cout << "Item removido" << endl;
@@ -202,6 +217,7 @@ public:
         cout << "Item nao encontrado" << endl;
     }
 
+    //Descontrutor para limpar a memoria
     ~ControleEstoque() {
         for (auto* item : listaItens) {
             delete item;
